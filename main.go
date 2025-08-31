@@ -1,11 +1,11 @@
 package main
 
 import (
-	"math/rand"
 	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"strings"
@@ -33,7 +33,11 @@ func commandExit() string {
 
 func commandHelp() string {
 	helpText := "Welcome to the Pokedex!\n Usage:\n"
-	for _, cmd := range commands {
+	for _, key := range commandOrder {
+		cmd := commands[key]
+		if cmd.name == "help" {
+			continue
+		}
 		helpText += fmt.Sprintf(" - %s: %s\n", cmd.name, cmd.description)
 	}
 	return helpText
@@ -127,9 +131,9 @@ func commandCatch(args []string) string {
 	}
 	poke := strings.ToLower(args[0]) // args = words[1:] therefore args[0] is the pokemon name (words[1])
 	fmt.Printf("Throwing a Pokeball at %s...\n", poke)
-	pokemon,err := fetchPokemonDetails(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s", poke))
+	pokemon, err := fetchPokemonDetails(fmt.Sprintf("https://pokeapi.co/api/v2/pokemon/%s", poke))
 	if err != nil {
-		return fmt.Sprintf("Error fetching details for Pokémon %s: %v",poke, err)
+		return fmt.Sprintf("Error fetching details for Pokémon %s: %v", poke, err)
 	}
 	if attemptCatch(pokemon) {
 		addToPokedex(pokemon)
@@ -138,7 +142,7 @@ func commandCatch(args []string) string {
 		return fmt.Sprintf("%s escaped!", pokemon.Name)
 	}
 }
-func commandPokedex(args[] string) string {
+func commandPokedex(args []string) string {
 	if len(pokedex) == 0 {
 		return "Your Pokedex is empty. Catch some Pokémon!"
 	}
@@ -148,8 +152,6 @@ func commandPokedex(args[] string) string {
 	}
 	return result
 }
-
-
 
 func fetchLocations(url string) (LocationList, error) {
 	var locations LocationList
@@ -203,12 +205,12 @@ func fetchPokemonDetails(url string) (Pokemon, error) {
 }
 
 type Pokemon struct {
-	Name string `json:"name"`
-	ID  int    `json:"id"`
-	Height int `json:"height"`
-	Weight int `json:"weight"`
-	BaseExperience int `json:"base_experience"`
-	Types []struct {
+	Name           string `json:"name"`
+	ID             int    `json:"id"`
+	Height         int    `json:"height"`
+	Weight         int    `json:"weight"`
+	BaseExperience int    `json:"base_experience"`
+	Types          []struct {
 		Type struct {
 			Name string `json:"name"`
 		} `json:"type"`
@@ -230,7 +232,7 @@ type CliCommand struct {
 
 type Location struct {
 	Name string `json:"name"`
-	URL string `json:"url"`
+	URL  string `json:"url"`
 }
 
 type LocationList struct {
@@ -239,15 +241,24 @@ type LocationList struct {
 	Previous string     `json:"previous"`
 }
 
-
 var pokedex = make(map[string]Pokemon)
+
 // globalLocations holds the fetched locations for use in commands
 var globalLocations LocationList
 
 // commands map will be initialized in main
 var commands map[string]CliCommand
 
-
+var commandOrder = []string{
+    "help",
+    "map",
+    "bmap",
+    "explore",
+    "catch",
+    "inspect",
+    "pokedex",
+	"exit",
+}
 
 func main() {
 	limit := 20
@@ -265,7 +276,7 @@ func main() {
 		"exit": {
 			name:        "exit",
 			description: "Exit the Pokedex",
-			callback:    func(args []string) string {return commandExit()},
+			callback:    func(args []string) string { return commandExit() },
 		},
 		"help": {
 			name:        "help",
@@ -275,7 +286,7 @@ func main() {
 		"map": {
 			name:        "map",
 			description: "List next locations",
-			callback:    func(args []string) string { return commandMap()},
+			callback:    func(args []string) string { return commandMap() },
 		},
 		"bmap": {
 			name:        "bmap",
