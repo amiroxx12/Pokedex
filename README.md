@@ -105,9 +105,7 @@ For example, a Pokémon with base experience 64:
 100% - (64 / factor) 
 ```
 And then a random number is generated between 0-100, if a the random number happens to be less than the catch probability, the Pokemon is successfully catched
-```
 The factor makes it either harder or easier to catch the pokemon, the higher the factor, the harder it is to catch the pokemon.
-
 You always have at least a 5% chance to catch any Pokémon.
 
 ---
