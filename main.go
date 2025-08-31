@@ -104,7 +104,8 @@ func commandInspect(args []string) string {
 }
 func attemptCatch(pokemon Pokemon) bool {
 	maxChance := 100
-	catchChance := maxChance - pokemon.BaseExperience
+	factor := 1
+	catchChance := maxChance - (pokemon.BaseExperience / factor)
 	if catchChance < 5 {
 		catchChance = 5 // Minimum 5% chance to catch any Pokémon
 	}
